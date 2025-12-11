@@ -15,7 +15,7 @@ std::string alertHeader = "";
 
 std::vector<std::string> mainLevels = {
 	"Stereo Madness",
-	"Back on Track",
+	"Back On Track",
 	"Polargeist",
 	"Dry Out",
 	"Base After Base",
@@ -51,7 +51,7 @@ std::vector<std::string> otherAllowedLevels = {
 
 static std::map<std::string, std::string> levelMapping = {
 	{"Stereo Madness", "Stereo Madness"},
-	{"Back on Track", "Back on Track"},
+	{"Back On Track", "Back On Track"},
 	{"Polargeist", "Polargeist"},
 	{"Dry Out", "Dry Out"},
 	{"Base After Base", "Base After Base"},

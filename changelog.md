@@ -9,3 +9,6 @@
 
 # 1.0.3
 - Added platformer copying, requires BetterInfo which is also now a dependency.
+
+# 1.0.4
+- Fixed Back On Track bug.

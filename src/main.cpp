@@ -1,3 +1,4 @@
+#include <Geode/modify/LevelAreaLayer.hpp>
 #include <Geode/modify/FLAlertLayer.hpp>
 #include <Geode/modify/LevelPage.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
@@ -102,5 +103,14 @@ class $modify(MyLevelPage, LevelPage) {
 		shouldCopy = true;
 		levelToCopy = m_level;
 		LevelPage::onInfo(sender);
+	}
+};
+
+class $modify(MyLevelAreaLayer, LevelAreaLayer) {
+	bool init() {
+		if (!LevelAreaLayer::init()) return false;
+		shouldCopy = false;
+		levelToCopy = nullptr;
+		return true;
 	}
 };

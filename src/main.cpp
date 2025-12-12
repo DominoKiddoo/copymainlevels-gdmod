@@ -96,11 +96,11 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 
 class $modify(MyLevelPage, LevelPage) {
 	void onInfo(CCObject* sender) {
-		LevelPage::onInfo(sender);
 		shouldCopy = false;
 		levelToCopy = nullptr;
-		if (!m_level || m_level->m_levelID.value() < 1) return;
+		if (!m_level || m_level->m_levelID.value() < 1) return LevelPage::onInfo(sender);
 		shouldCopy = true;
 		levelToCopy = m_level;
+		LevelPage::onInfo(sender);
 	}
 };

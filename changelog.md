@@ -16,3 +16,10 @@
 # 1.0.5
 - Fixed Electroman Adventures bug
 - Fixed Back On Track copying bug (android)
+
+# 1.0.6
+- Code is much more optimised and should now also work with spin-off game mods.
+- The button now actually says "copy level" opposed to icon
+- Reverted from using GMD api
+**Thanks Ery for fixing my horrible code :D**
+

@@ -14,6 +14,6 @@ I will <cr>eventually</cr> the challenge and **maybe** the spin-off levels.
 Send them to <cy>@DominoKiddoo</cy> on discord
 
 # Credits
-Thanks to <cp>HJFod</cp> for the <cy>GMD Api</cy>
+Thanks to <cr>[RayDeeUx](https://github.com/RayDeeUx)<cr> for fixing my code, and making it a better mod overall!
 
 

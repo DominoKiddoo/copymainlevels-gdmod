@@ -1,7 +1,7 @@
-#include <Geode/modify/LevelSelectLayer.hpp>
 #include <Geode/modify/FLAlertLayer.hpp>
 #include <Geode/modify/LevelPage.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
+#include <Geode/binding/LevelSelectLayer.hpp>
 #include <Geode/binding/GameLevelManager.hpp>
 #include <Geode/binding/LocalLevelManager.hpp>
 #include <Geode/binding/LevelAreaInnerLayer.hpp>
@@ -47,6 +47,11 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 			if (!level || level->m_levelID.value() < 1) return true;
 			shouldCopy = true;
 			levelToCopy = level;
+		} else if (!CCScene::get()->getChildByType<LevelSelectLayer>(0) && !CCScene::get()->getChildByType<LevelAreaInnerLayer>(0)) {
+			// WHY ISNT FIELDS DESTRUCTOR WORKING??????
+			shouldCopy = false;
+			levelToCopy = nullptr;
+			return true;
 		}
 
 		auto cButton = CCMenuItemSpriteExtra::create(
@@ -75,11 +80,17 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 		levelToCopy = nullptr;
 	}
 
-	void removeFromParentAndCleanup(bool fooBar) {
-		log::info("removeFromParentAndCleanup");
+	// cut my blank into pieces this is my last resort
+	void onBtn1(CCObject* sender) {
 		shouldCopy = false;
 		levelToCopy = nullptr;
-		FLAlertLayer::removeFromParentAndCleanup(fooBar);
+		FLAlertLayer::onBtn1(sender);
+	}
+
+	void onBtn2(CCObject* sender) {
+		shouldCopy = false;
+		levelToCopy = nullptr;
+		FLAlertLayer::onBtn2(sender);
 	}
 };
 

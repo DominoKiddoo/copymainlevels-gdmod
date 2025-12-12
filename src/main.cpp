@@ -22,7 +22,7 @@ constexpr const int* levelNameToLevelID(std::string_view key) {
 	for (auto const& kv : table) {
 		if (kv.first == key) return &kv.second;
 	}
-	return -1;
+	return nullptr;
 }
 
 class $modify(InfoPopupHook, FLAlertLayer) {
@@ -41,7 +41,7 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 			if (!CCScene::get() || !CCScene::get()->getChildByType<LevelAreaInnerLayer>(0)) return true;
 
 			auto towerLevelID = levelNameToLevelID(title);
-			if (towerLevelID < 5001) return true;
+			if (!towerLevelID || *towerLevelID < 5001) return true;
 
 			auto level = typeinfo_cast<GJGameLevel*>(GameLevelManager::sharedState()->m_mainLevels->objectForKey(fmt::to_string(*towerLevelID)));
 			if (!level || level->m_levelID.value() < 1) return true;

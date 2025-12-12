@@ -22,7 +22,7 @@ constexpr const int* levelNameToLevelID(std::string_view key) {
 	for (auto const& kv : table) {
 		if (kv.first == key) return &kv.second;
 	}
-	return nullptr;
+	return -1;
 }
 
 class $modify(InfoPopupHook, FLAlertLayer) {
@@ -43,7 +43,7 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 			auto towerLevelID = levelNameToLevelID(title);
 			if (towerLevelID < 5001) return true;
 
-			auto level = typeinfo_cast<GJGameLevel*>(GameLevelManager::sharedState()->m_mainLevels->objectForKey(fmt::to_string(towerLevelID)));
+			auto level = typeinfo_cast<GJGameLevel*>(GameLevelManager::sharedState()->m_mainLevels->objectForKey(fmt::to_string(*towerLevelID)));
 			if (!level || level->m_levelID.value() < 1) return true;
 			shouldCopy = true;
 			levelToCopy = level;

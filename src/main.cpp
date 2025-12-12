@@ -48,7 +48,10 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 			shouldCopy = true;
 			levelToCopy = level;
 		} else if (!CCScene::get()->getChildByType<LevelSelectLayer>(0) && !CCScene::get()->getChildByType<LevelAreaInnerLayer>(0)) {
-			log::info("WHY THE FUCK:???????????????????????????????????????????/");
+			log::info("BRUH");
+			shouldCopy = false;
+			levelToCopy = nullptr;
+			return true;
 		}
 
 		auto cButton = CCMenuItemSpriteExtra::create(
@@ -75,19 +78,6 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 
 		shouldCopy = false;
 		levelToCopy = nullptr;
-	}
-
-	// cut my blank into pieces this is my last resort
-	void onBtn1(CCObject* sender) {
-		shouldCopy = false;
-		levelToCopy = nullptr;
-		FLAlertLayer::onBtn1(sender);
-	}
-
-	void onBtn2(CCObject* sender) {
-		shouldCopy = false;
-		levelToCopy = nullptr;
-		FLAlertLayer::onBtn2(sender);
 	}
 };
 

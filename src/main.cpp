@@ -35,7 +35,7 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 	};
 
 	void addCopyButton() {
-		if (!m_buttonMenu || m_buttonMenu->getChildByID("copy-main-level-button"_spr)) return;
+		if (!m_mainLayer || !m_mainLayer->getChildByType<CCScale9Sprite>(0) || !m_buttonMenu || m_buttonMenu->getChildByID("copy-main-level-button"_spr)) return;
 		if (!shouldCopy || !levelToCopy) return;
 		else if (!CCScene::get()->getChildByType<LevelSelectLayer>(0) && !CCScene::get()->getChildByType<LevelAreaInnerLayer>(0)) {
 			shouldCopy = false;
@@ -49,7 +49,7 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 		);
 		cButton->setID("copy-main-level-button"_spr);
 
-		cButton->setPositionX(cButton->getPositionX() - (width / 2) + (cButton->getContentWidth() / 2) - 20);
+		cButton->setPositionX(cButton->getPositionX() - (m_mainLayer->getChildByType<CCScale9Sprite>(0)->getContentWidth() / 2) + (cButton->getContentWidth() / 2) - 20);
 
 		m_buttonMenu->addChild(cButton);
 	}

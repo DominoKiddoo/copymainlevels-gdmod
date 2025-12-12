@@ -18,17 +18,13 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 		if (!shouldCopy || !levelToCopy) return true;
 
 		auto cButton = CCMenuItemSpriteExtra::create(
-			CCSprite::createWithSpriteFrameName("GJ_duplicateBtn_001.png"),
+			ButtonSprite::create("Copy Level", 80, 0, 0.6f, true, "goldFont.fnt", "GJ_button_04.png", 25.0f),
 			this, menu_selector(InfoPopupHook::onCopyMainLevel)
 		);
 
-		cButton->setPosition(
-			(cButton->getPositionX() - 61.f),
-			cButton->getPositionY()
-		);
+		cButton->setPositionX(cButton->getPositionX() - 61.f);
 
 		m_buttonMenu->addChild(cButton);
-		m_buttonMenu->updateLayout();
 
 		return true;
 	}

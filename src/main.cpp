@@ -1,173 +1,111 @@
-#include <Geode/modify/LevelSelectLayer.hpp>
-#include <Geode/modify/BoomScrollLayer.hpp>
-#include <hjfod.gmd-api/include/GMD.hpp>
-#include <Geode/binding/GJGameLevel.hpp>
-#include <Geode/binding/LocalLevelManager.hpp>
-#include <vector>
-#include <string>
-#include <iostream>
+#include <Geode/modify/LevelAreaLayer.hpp>
 #include <Geode/modify/FLAlertLayer.hpp>
+#include <Geode/modify/LevelPage.hpp>
+#include <Geode/binding/GJGameLevel.hpp>
+#include <Geode/binding/LevelSelectLayer.hpp>
+#include <Geode/binding/GameLevelManager.hpp>
+#include <Geode/binding/LocalLevelManager.hpp>
+#include <Geode/binding/LevelAreaInnerLayer.hpp>
 
 using namespace geode::prelude;
 
-int cpage = 0;
-std::string alertHeader = "";
+bool shouldCopy = false;
+GJGameLevel* levelToCopy = nullptr;
 
-std::vector<std::string> mainLevels = {
-	"Stereo Madness",
-	"Back On Track",
-	"Polargeist",
-	"Dry Out",
-	"Base After Base",
-	"Cant Let Go",
-	"Jumper",
-	"Time Machine",
-	"Cycles",
-	"xStep",
-	"Clutterfunk",
-	"Theory of Everything",
-	"Electroman Adventure",
-	"Clubstep",
-	"Electrodynamix",
-	"Hexagon Force",
-	"Blast Processing",
-	"ToE 2",
-	"Geometrical Dominato",
-	"Deadlocked",
-	"Fingerdash",
-	"Dash",
-    "The Tower",
-    "The Sewers",
-    "The Cellar",
-    "The Secret Hollow"
-};
+constexpr std::array<std::pair<std::string_view,int>, 4> table{{
+	{"The Tower", 5001},
+	{"The Sewers", 5002},
+	{"The Cellar", 5003},
+	{"The Secret Hollow", 5004}
+}};
 
-std::vector<std::string> otherAllowedLevels = {
-    "The Tower",
-    "The Sewers",
-    "The Cellar",
-    "The Secret Hollow"
-};
-
-static std::map<std::string, std::string> levelMapping = {
-	{"Stereo Madness", "Stereo Madness"},
-	{"Back On Track", "Back On Track"},
-	{"Polargeist", "Polargeist"},
-	{"Dry Out", "Dry Out"},
-	{"Base After Base", "Base After Base"},
-	{"Cant Let Go", "Cant Let Go"},
-	{"Jumper", "Jumper"},
-	{"Time Machine", "Time Machine"},
-	{"Cycles", "Cycles"},
-	{"xStep", "xStep"},
-	{"Clutterfunk", "Clutterfunk"},
-	{"Theory of Everything", "Theory of Everything"},
-	{"Electroman Adventures", "Electroman Adventure"},
-	{"Clubstep", "Clubstep"},
-	{"Electrodynamix", "Electrodynamix"},
-	{"Hexagon Force", "Hexagon Force"},
-	{"Blast Processing", "Blast Processing"},
-	{"Theory of Everything 2", "ToE 2"},
-	{"Geometrical Dominator", "Geometrical Dominato"},
-	{"Deadlocked", "Deadlocked"},
-	{"Fingerdash", "Fingerdash"},
-	{"Dash", "Dash"},
-    {"The Tower", "The Tower"},
-    {"The Cellar", "The Cellar"},
-    {"The Sewers", "The Sewers"},
-    {"The Secret Hollow", "The Secret Hollow"}
-
-};
-
-std::string fixLevelName(const std::string& inputValue) {
-	for (const auto& pair : levelMapping) {
-		if (pair.second == inputValue) {
-			return pair.first;
-		}
+constexpr const int* levelNameToLevelID(std::string_view key) {
+	for (auto const& kv : table) {
+		if (kv.first == key) return &kv.second;
 	}
-	return inputValue;
-}
-
-class $modify(CMLbsc, BoomScrollLayer) {
-	bool init(cocos2d::CCArray* pages, int offset, bool looped, cocos2d::CCArray* dynamicObjects, DynamicScrollDelegate* delegate) {
-		if (!BoomScrollLayer::init(pages, offset, looped, dynamicObjects, delegate))
-			return false;
-
-		this->schedule(schedule_selector(CMLbsc::updPageN));
-		return true;
-	}
-
-	void updPageN(float dt) {
-		cpage = (m_page % 24 + 24) % 24;
-	}
-};
-
-void importLevel(std::string const& shortName) {
-	std::string fileName = fmt::format("{}.gmd", shortName);
-	auto path = Mod::get()->getResourcesDir() / fileName;
-
-	auto result = gmd::importGmdAsLevel(path.string());
-
-	if (result.isOk()) {
-		auto level = result.unwrap();
-		level->m_levelType = GJLevelType::Editor;
-
-		LocalLevelManager::sharedState()->m_localLevels->insertObject(level, 0);
-
-		std::string fixedName = fixLevelName(shortName);
-		FLAlertLayer::create(nullptr, "Success", fmt::format("Copied {}!", fixedName), "OK", nullptr, 300.f)->show();
-	}
-	else {
-		FLAlertLayer::create(nullptr, "Error", "Import failed. Report to DominoKiddoo.", "OK", nullptr, 300.f)->show();
-	}
+	return nullptr;
 }
 
 class $modify(InfoPopupHook, FLAlertLayer) {
+
 	struct Fields {
-		std::string m_targetFileName;
+		~Fields() {
+			shouldCopy = false;
+			levelToCopy = nullptr;
+		}
 	};
 
-	bool init(FLAlertLayerProtocol* p0, char const* title, gd::string desc, char const* btn1, char const* btn2, float width, bool scroll, float height, float textScale) {
-		if (!FLAlertLayer::init(p0, title, desc, btn1, btn2, width, scroll, height, textScale))
-			return false;
+	void addCopyButton() {
+		if (!m_mainLayer || !m_mainLayer->getChildByType<CCScale9Sprite>(0) || !m_buttonMenu || m_buttonMenu->getChildByID("copy-main-level-button"_spr)) return;
+		if (!shouldCopy || !levelToCopy) return;
+		else if (!CCScene::get()->getChildByType<LevelSelectLayer>(0) && !CCScene::get()->getChildByType<LevelAreaInnerLayer>(0)) {
+			shouldCopy = false;
+			levelToCopy = nullptr;
+			return;
+		}
 
-        log::info("{}", desc);
-    
-		if (!title || !levelMapping.count(title)) {
-			return true;
-        }
-
-		auto mainLayer = this->getChildByID("main-layer");
-		auto bg = mainLayer ? mainLayer->getChildByID("background") : nullptr;
-        alertHeader = title;
 		auto cButton = CCMenuItemSpriteExtra::create(
-			CCSprite::createWithSpriteFrameName("GJ_duplicateBtn_001.png"),
-			this,
-			menu_selector(InfoPopupHook::onCopyMainLevel)
+			ButtonSprite::create("Copy Level", 80, 0, 0.6f, true, "goldFont.fnt", "GJ_button_04.png", 25.0f),
+			this, menu_selector(InfoPopupHook::onCopyMainLevel)
 		);
+		cButton->setID("copy-main-level-button"_spr);
 
-		cButton->setPosition(
-			(cButton->getPositionX() - 61.f),
-			cButton->getPositionY()
-		);
+		cButton->setPositionX(cButton->getPositionX() - (m_mainLayer->getChildByType<CCScale9Sprite>(0)->getContentWidth() / 2) + (cButton->getContentWidth() / 2) + 20);
 
 		m_buttonMenu->addChild(cButton);
-		m_buttonMenu->updateLayout();
+	}
+
+	bool init(FLAlertLayerProtocol* p0, char const* title, gd::string desc, char const* btn1, char const* btn2, float width, bool scroll, float height, float textScale) {
+		if (!FLAlertLayer::init(p0, title, desc, btn1, btn2, width, scroll, height, textScale)) return false;
+		if (!title) return true;
+		if (!shouldCopy || !levelToCopy) {
+			if (!CCScene::get() || !CCScene::get()->getChildByType<LevelAreaInnerLayer>(0)) return true;
+
+			auto towerLevelID = levelNameToLevelID(title);
+			if (!towerLevelID || *towerLevelID < 5001) return true;
+
+			auto level = typeinfo_cast<GJGameLevel*>(GameLevelManager::sharedState()->m_mainLevels->objectForKey(fmt::to_string(*towerLevelID)));
+			if (!level || level->m_levelID.value() < 1) return true;
+			shouldCopy = true;
+			levelToCopy = level;
+		}
+
+		InfoPopupHook::addCopyButton();
 
 		return true;
 	}
 
-	void onCopyMainLevel(CCObject*) {
-        if (cpage != 22 && cpage != 23) {
-            std::string cLevel = mainLevels[cpage];
-            importLevel(cLevel);
-        } else {
-            if  (std::find(otherAllowedLevels.begin(), otherAllowedLevels.end(), alertHeader) != otherAllowedLevels.end()) {
-                importLevel(alertHeader);
-            } else {
-                FLAlertLayer::create("Error", fmt::format("You are not on a page with a level!"), "OK")->show();
-            }
-			
+	void onCopyMainLevel(CCObject* sender) {
+        if (!shouldCopy || !levelToCopy) return;
+		// code adapted from zmx/qimiko under the mozilla public license 2.0
+
+		if (levelToCopy->m_levelString.empty()) {
+			levelToCopy->m_levelString = LocalLevelManager::sharedState()->getMainLevelString(levelToCopy->m_levelID);
 		}
+
+		EditLevelLayer::create(levelToCopy)->onClone();
+
+		shouldCopy = false;
+		levelToCopy = nullptr;
+	}
+};
+
+class $modify(MyLevelPage, LevelPage) {
+	void onInfo(CCObject* sender) {
+		shouldCopy = false;
+		levelToCopy = nullptr;
+		if (!m_level || m_level->m_levelID.value() < 1) return LevelPage::onInfo(sender);
+		shouldCopy = true;
+		levelToCopy = m_level;
+		LevelPage::onInfo(sender);
+	}
+};
+
+class $modify(MyLevelAreaLayer, LevelAreaLayer) {
+	bool init() {
+		if (!LevelAreaLayer::init()) return false;
+		shouldCopy = false;
+		levelToCopy = nullptr;
+		return true;
 	}
 };

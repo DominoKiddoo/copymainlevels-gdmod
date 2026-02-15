@@ -23,3 +23,6 @@
 - Reverted from using GMD api
 **Thanks Ery for fixing my horrible code :D**
 
+# 1.0.7
+- Updated mod for GD 2.2081
+

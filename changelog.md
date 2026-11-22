@@ -26,3 +26,9 @@
 # 1.0.7
 - Updated mod for GD 2.2081
 
+# 1.0.8
+
+- Updated mod for GD 2.2091
+
+
+

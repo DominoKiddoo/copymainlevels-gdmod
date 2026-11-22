@@ -55,7 +55,7 @@ class $modify(InfoPopupHook, FLAlertLayer) {
 		m_buttonMenu->addChild(cButton);
 	}
 
-	bool init(FLAlertLayerProtocol* p0, char const* title, gd::string desc, char const* btn1, char const* btn2, float width, bool scroll, float height, float textScale) {
+	bool init(FLAlertLayerProtocol* p0, char const* title, std::string desc, char const* btn1, char const* btn2, float width, bool scroll, float height, float textScale) {
 		if (!FLAlertLayer::init(p0, title, desc, btn1, btn2, width, scroll, height, textScale)) return false;
 		if (!title) return true;
 		if (!shouldCopy || !levelToCopy) {

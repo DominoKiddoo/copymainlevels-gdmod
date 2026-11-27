@@ -8,7 +8,7 @@
 	},
 	"id": "dominodev.copymainlevels",
 	"name": "Copy Main Levels",
-	"version": "v1.0.7",
+	"version": "v1.0.8",
 	"developer": "dominodev",
 	"description": "Copy main levels directly from their pages.",
 	"tags": ["offline", "utility", "enhancement"]
